@@ -1,0 +1,35 @@
+# HRSC2016 上 RetinaNet 的训练配置（复现段），命令行参数可覆盖本文件
+
+data:
+  root: data/processed/hrsc2016
+  num_classes: 1
+  class_names:
+    - ship
+
+model:
+  # 教材场景目标更小更密，输入比交通标志更大
+  min_size: 640
+  max_size: 800
+  trainable_backbone_layers: 3
+  focal_alpha: 0.25
+  focal_gamma: 2.0
+
+train:
+  epochs: 20
+  batch_size: 1
+  lr: 0.0003
+  momentum: 0.9
+  weight_decay: 0.0001
+  workers: 4
+  amp: true
+  seed: 42
+  # true 时强制可复现的 cuDNN 算法（更慢，默认关闭）
+  deterministic: false
+  # 0 表示验证集全量
+  val_max_images: 0
+  val_every: 1
+  clip_grad: 10.0
+  # 教材：每 8 个 epoch 学习率 ×0.1
+  scheduler: step
+  lr_step: 8
+  lr_gamma: 0.1

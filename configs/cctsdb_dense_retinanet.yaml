@@ -1,0 +1,33 @@
+# CCTSDB2021 密集子集上 RetinaNet 的训练配置（迁移段加分实验）
+
+data:
+  root: data/processed/cctsdb_dense3
+  num_classes: 3
+  class_names:
+    - mandatory
+    - prohibitory
+    - warning
+
+model:
+  # 8GB 显存建议 512/640；显存不足改 448/576
+  min_size: 512
+  max_size: 640
+  trainable_backbone_layers: 3
+  focal_alpha: 0.25
+  focal_gamma: 2.0
+
+train:
+  epochs: 12
+  batch_size: 2
+  lr: 0.005
+  momentum: 0.9
+  weight_decay: 0.0001
+  workers: 4
+  amp: true
+  seed: 42
+  # true 时强制可复现的 cuDNN 算法（更慢，默认关闭）
+  deterministic: false
+  val_max_images: 800
+  val_every: 1
+  clip_grad: 10.0
+  scheduler: cosine

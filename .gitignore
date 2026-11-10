@@ -1,0 +1,46 @@
+# ================= 数据与训练产物（体积大，不入库） =================
+03_数据集/
+data/
+outputs/
+runs/
+checkpoints/
+report/
+*.pth
+*.pt
+*.ckpt
+*.onnx
+*.engine
+*.rar
+*.zip
+*.tar
+*.tar.gz
+
+# ================= 含个人信息的材料（姓名 / 学号 / 封面） =================
+01_课程设计报告/
+
+# ================= IDE / 编辑器 =================
+.idea/
+.vscode/
+*.iml
+*.swp
+
+# ================= Python =================
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+env/
+.ipynb_checkpoints/
+
+# ================= 系统 =================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ================= 日志 =================
+*.log
+logs/

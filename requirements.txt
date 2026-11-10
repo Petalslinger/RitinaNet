@@ -1,0 +1,14 @@
+# 核心依赖（Python >= 3.10，PyTorch 按自己的 CUDA 版本单独安装）
+torch>=2.0
+torchvision>=0.15
+numpy>=1.24
+Pillow>=9.5
+opencv-python>=4.8
+matplotlib>=3.7
+PyYAML>=6.0
+
+# 可选：数据集下载进度条
+tqdm>=4.66
+
+# 可选：解压 CCTSDB2021 的 dataset.rar（另需系统安装 unrar / 7z）
+rarfile>=4.1
