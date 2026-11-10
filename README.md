@@ -1,6 +1,6 @@
 # RetinaNet 目标检测实验：MDA 注意力 + Soft-NMS
 
-基于 `torchvision` 的 **RetinaNet-ResNet50-FPN-v2** 实现的目标检测实验工程：在 FPN 多尺度特征上接入**多维注意力（MDA）**，并用 **Soft-NMS** 替换检测头后的标准 NMS。在 **HRSC2016** 遥感舰船数据集与 **CCTSDB2021** 交通标志数据集上完成了基线对比、注意力消融、后处理消融与跨域迁移实验。
+基于 `torchvision` 的 **RetinaNet-ResNet50-FPN-v2** 实现的目标检测实验工程：在 FPN 多尺度特征上接入**多维注意力（MDA）**，并用 **Soft-NMS** 替换检测头后的标准 NMS。在 **HRSC2016** 遥感舰船数据集与 **CCTSDB2021** 交通标志数据集上完成了基线对比、注意力消融、后处理消融与跨域迁移实验，并在 CCTSDB2021 密集子集上补充了目标密度对照实验。
 
 ## 特性
 
@@ -88,11 +88,23 @@ python -m src.prepare_data --raw-dir /path/to/HRSC2016 \
 
 脚本会自动识别 `<robndbox>` / `<HRSC_Object>` 旋转标注，取水平外接矩形。
 
-### 密集子集（Soft-NMS 加分实验）
+### 密集子集（目标密度对照）
+
+从 CCTSDB2021 的 train / val / test 中一致筛选「每图标注框 ≥ 3」的图像，构成 `cctsdb_dense3`（训练 2113 张 / 验证 366 张 / 测试 406 张，测试集 1501 个标注框，平均 3.70 框/图），用于检验改进增益随目标密度的变化：
 
 ```bash
 python -m src.select_dense --root data/processed/cctsdb \
     --out data/processed/cctsdb_dense3 --min-boxes 3
+```
+
+子集上的训练与主表使用同一套超参，仅切换 MDA：
+
+```bash
+python -m src.train --config configs/cctsdb_dense_retinanet.yaml \
+    --output outputs/checkpoints/dense_base --no-mda
+
+python -m src.train --config configs/cctsdb_dense_retinanet.yaml \
+    --output outputs/checkpoints/dense_full --use-mda
 ```
 
 ## 训练
@@ -172,7 +184,18 @@ python -m src.compare \
 | C | MDA + NMS | 91.93% | 61.58% | 87.57% | 89.74% | 88.64% |
 | D | MDA + Soft-NMS | **92.40%** | **63.36%** | **91.56%** | 87.92% | 89.70% |
 
-结论：MDA 与 Soft-NMS 收益互补，二者叠加在 HRSC2016 上带来 +1.37 个百分点的 mAP@0.5 提升；Soft-NMS 的主要贡献在召回率（76.14% → 80.05%）。迁移到交通标志场景后增益仍然存在，但幅度小于教材中的 small-DOTA 实验，说明注意力模块的收益与目标密度相关。
+**CCTSDB2021 密集子集**（cctsdb_dense3 测试集，406 图 / 1501 实例，平均 3.70 框/图）
+
+| 组 | 实验 | mAP@0.5 | mAP@0.5:0.95 | P | R | F1 |
+| --- | --- | --- | --- | --- | --- | --- |
+| A | dense 基线 + NMS | 74.54% | 42.46% | 73.26% | 79.01% | 76.03% |
+| B | dense 基线 + Soft-NMS | **78.40%** | **45.95%** | 78.74% | 77.75% | 78.24% |
+| C | dense MDA + NMS | 73.53% | 42.25% | 72.29% | **80.48%** | 76.17% |
+| D | dense MDA + Soft-NMS | 76.26% | 45.19% | 76.77% | 80.35% | **78.52%** |
+
+结论：MDA 与 Soft-NMS 在 HRSC2016 上收益互补，二者叠加带来 +1.37 个百分点的 mAP@0.5 提升，Soft-NMS 的主要贡献在召回率（76.14% → 80.05%）。迁移到交通标志场景后两项改进仍然有效，但幅度小于教材中的 small-DOTA 实验。
+
+密集子集进一步表明两者的适用条件不同：Soft-NMS 的增益随目标密度上升而扩大（主表 +0.91 → 密集子集 +3.86），而 MDA 在密集场景下转为负增益（74.54% → 73.53%），说明 MDA 更接近特定场景下的提效模块，Soft-NMS 才是与目标密度强相关的通用后处理改进。
 
 ## 关于本仓库
 

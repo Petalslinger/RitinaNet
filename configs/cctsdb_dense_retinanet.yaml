@@ -1,4 +1,4 @@
-# CCTSDB2021 密集子集上 RetinaNet 的训练配置（迁移段加分实验）
+# CCTSDB2021 密集子集上 RetinaNet 的训练配置（目标密度对照实验）
 
 data:
   root: data/processed/cctsdb_dense3
